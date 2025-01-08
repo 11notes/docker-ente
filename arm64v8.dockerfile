@@ -11,6 +11,7 @@ FROM multiarch/qemu-user-static:x86_64-aarch64 as qemu
 
 # :: Build
   FROM --platform=linux/arm64 golang:1.23.4-alpine3.21 as build
+  COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin
   ENV BUILD_DIR=/go/ente/server
 
   USER root
