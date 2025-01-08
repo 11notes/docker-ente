@@ -1,0 +1,88 @@
+name: "ente"
+services:
+  ente:
+    image: "11notes/ente:4.2.3"
+    container_name: "ente"
+    depends_on:
+      postgres:
+        condition: "service_healthy"
+        restart: true
+    environment:
+      TZ: "Europe/Zurich"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    volumes:
+      - "etc:/ente/etc"
+    ports:
+      - "8080:8080/tcp"
+    networks:
+      frontend:
+      backend:
+    restart: "always"
+
+  postgres:
+    image: "11notes/postgres:16"
+    container_name: "ente.postgres"
+    environment:
+      TZ: "Europe/Zurich"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - "postgres.etc:/postgres/etc"
+      - "postgres.var:/postgres/var"
+      - "postgres.backup:/postgres/backup"
+    networks:
+      backend:
+    restart: "always"
+
+  minio:
+    image: "minio/minio"
+    container_name: "ente.minio"
+    environment:
+      TZ: "Europe/Zurich"
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_ROOT_USER: "root"
+      MINIO_ROOT_PASSWORD: "minio1234"
+    command: 
+      - "server"
+      - "/data"
+      - "--console-address"
+      - ":9001"
+    volumes:
+      - "minio.etc:/root/.minio"
+      - "minio.var:/data"
+    networks:
+      backend:
+    restart: "always"
+
+  mc:
+    image: "minio/mc"
+    container_name: "ente.mc"
+    depends_on:
+      - "minio"
+    environment:
+      TZ: "Europe/Zurich"
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add ente http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
+      /usr/bin/mc mb --ignore-existing ente/default;
+      exit 0;"
+    volumes:
+      - "mc.etc:/root/.mc"
+    networks:
+      backend:
+volumes:
+  etc:
+  postgres.etc:
+  postgres.var:
+  postgres.backup:
+  minio.etc:
+  minio.var:
+  mc.etc:
+networks:
+  frontend:
+  backend:
+    internal: true

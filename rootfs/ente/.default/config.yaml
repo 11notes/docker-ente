@@ -1,0 +1,89 @@
+db:
+  host: "${POSTGRES_HOST}"
+  port: "${POSTGRES_PORT}"
+  name: "${POSTGRES_DATABASE}"
+  user: "${POSTGRES_USER}"
+  password: "${POSTGRES_PASSWORD}"
+  sslmode: disable
+s3:
+  are_local_buckets: true
+  minio:
+    key: "${MINIO_ACCESS_KEY}"
+    secret: "${MINIO_SECRET_KEY}"
+    endpoint: "minio:3200"
+    bucket: "default"
+log-file: ""
+http:
+apps:
+  public-albums:
+  cast:
+  accounts:
+  family:
+key:
+  encryption: "${KEY_ENCRYPTION}"
+  hash: "${KEY_HASH}"
+jwt:
+  secret: "${JWT_SECRET}"
+smtp:
+  host: "${SMTP_HOST}"
+  port: "${SMTP_PORT}"
+  username: "${SMTP_USER}"
+  password: "${SMTP_PASSWORD}"
+  email: "${SMTP_EMAIL}"
+transmail:
+  key:
+apple:
+  shared-secret:
+stripe:
+  us:
+    key:
+    webhook-secret:
+  in:
+    key:
+    webhook-secret:
+  whitelisted-redirect-urls: []
+  path:
+    success: "?status=success&session_id={CHECKOUT_SESSION_ID}"
+    cancel: "?status=fail&reason=canceled"
+webauthn:
+  rpid: localhost
+  rporigins:
+    - "http://localhost:3001"
+discord:
+  bot:
+    cha-ching:
+      token:
+      channel:
+    mona-lisa:
+      token:
+      channel:
+zoho:
+  client-id:
+  client-secret:
+  refresh-token:
+  list-key:
+  topic-ids:
+listmonk:
+  server-url:
+  username:
+  password:
+  list-ids:
+internal:
+  silent: false
+  health-check-url:
+  admins: []
+  admin:
+  disable-registration: false
+replication:
+  enabled: false
+  worker-url:
+  worker-count: 6
+  tmp-storage: tmp/replication
+jobs:
+  cron:
+    skip: false
+  remove-unreported-objects:
+    worker-count: 1
+  clear-orphan-objects:
+    enabled: false
+    prefix: ""
