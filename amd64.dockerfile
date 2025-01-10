@@ -73,7 +73,7 @@
   VOLUME ["${APP_ROOT}/etc"]
 
 # :: Monitor
-  HEALTHCHECK --interval=5s --timeout=2s CMD curl -kILs --fail http://localhost:8080/ping || exit 1
+  HEALTHCHECK --interval=5s --timeout=2s CMD curl -X GET -kILs --fail http://localhost:8080/ping || exit 1
 
 # :: Start
   USER docker

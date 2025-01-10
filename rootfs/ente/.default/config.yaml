@@ -74,6 +74,9 @@ internal:
   admins: []
   admin:
   disable-registration: false
+  hardcoded-ott:
+    local-domain-suffix: "${OTT_DOMAIN}"
+    local-domain-value: ${OTT_PIN}
 replication:
   enabled: false
   worker-url:

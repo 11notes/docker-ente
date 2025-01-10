@@ -12,6 +12,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      OTT_DOMAIN: "@domain.com"
+      OTT_PIN: 123456
     volumes:
       - "etc:/ente/etc"
     ports:

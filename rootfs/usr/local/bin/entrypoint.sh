@@ -20,7 +20,16 @@
       sed -i 's@${SMTP_PORT}@'${SMTP_PORT}'@' ${ENTE_CONFIG_FILE}
       sed -i 's@${SMTP_USER}@'${SMTP_USER}'@' ${ENTE_CONFIG_FILE}
       sed -i 's@${SMTP_PASSWORD}@'${SMTP_PASSWORD}'@' ${ENTE_CONFIG_FILE}
-      sed -i 's@${SMTP_ADDRESS}@'${SMTP_ADDRESS}'@' ${ENTE_CONFIG_FILE}
+      sed -i 's@${SMTP_EMAIL}@'${SMTP_EMAIL}'@' ${ENTE_CONFIG_FILE}
+
+      if [ ! -z "${OTT_DOMAIN}" ]; then
+        sed -i 's@${OTT_DOMAIN}@'${OTT_DOMAIN}'@' ${ENTE_CONFIG_FILE}
+        sed -i 's@${OTT_PIN}@'${OTT_PIN}'@' ${ENTE_CONFIG_FILE}
+      else
+        sed -i 's@hardcoded-ott:@#hardcoded-ott:@' ${ENTE_CONFIG_FILE}
+        sed -i 's@local-domain-suffix:@#local-domain-suffix:@' ${ENTE_CONFIG_FILE}
+        sed -i 's@local-domain-value:@#local-domain-value:@' ${ENTE_CONFIG_FILE}
+      fi
 
       # set secrets
       sed -i 's@${KEY_ENCRYPTION}@'$(elevenCreateRandomString 31 | base64)'@' ${ENTE_CONFIG_FILE}

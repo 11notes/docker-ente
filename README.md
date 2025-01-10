@@ -4,7 +4,7 @@
 [<img src="https://img.shields.io/badge/github-source-blue?logo=github">](https://github.com/11notes/docker-ente/tree/4.2.3) ![size](https://img.shields.io/docker/image-size/11notes/ente/4.2.3?color=0eb305) ![version](https://img.shields.io/docker/v/11notes/ente/4.2.3?color=eb7a09) ![pulls](https://img.shields.io/docker/pulls/11notes/ente?color=2b75d6)
 
 # SYNOPSIS
-**What can I do with this?** Run the ente server for your authenticator or photos app, easy and secure. You can use the compose to start your own server, the image will create all the needed keys and hashes or you can simply provide your own variables or config.yaml, whatever you prefer.
+**What can I do with this?** Run the ente server for your authenticator or photos app, easy and secure. You can use the compose to start your own server, the image will create all the needed keys and hashes or you can simply provide your own variables or config.yaml, whatever you prefer. For registration you can use the OTT option to avoid having to setup an SMTP server. Simply add your domain “@domain.com” to the ```${OTT_DOMAIN}``` and set the static PIN via ```${OTT_PIN}``` so every account can verify with that PIN.
 
 # VOLUMES
 * **/ente/etc** - Directory of config.yaml
@@ -88,6 +88,9 @@ internal:
   admins: []
   admin:
   disable-registration: false
+  hardcoded-ott:
+    local-domain-suffix: "${OTT_DOMAIN}"
+    local-domain-value: ${OTT_PIN}
 replication:
   enabled: false
   worker-url:
@@ -119,6 +122,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      OTT_DOMAIN: "@domain.com"
+      OTT_PIN: 123456
     volumes:
       - "etc:/ente/etc"
     ports:
@@ -224,6 +229,8 @@ networks:
 | `SMTP_USER` | smtp server authentication user | |
 | `SMTP_PASSWORD` | smtp server authentication password | |
 | `SMTP_EMAIL` | smtp email address | |
+| `OTT_DOMAIN` | domain used for static OTT PIN for all accounts ending in this domain | |
+| `OTT_PIN` | static OTT PIN for all accounts registering | |
 
 # SOURCE
 * [11notes/ente:4.2.3](https://github.com/11notes/docker-ente/tree/4.2.3)
