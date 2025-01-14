@@ -61,9 +61,7 @@ jobs:
             APP_ROOT=${{ env.json_root }}
           tags: |
             ${{ env.json_image }}:${{ env.json_version }}
-            ${{ env.json_image }}:stable
             ghcr.io/${{ env.json_image }}:${{ env.json_version }}
-            ghcr.io/${{ env.json_image }}:stable
 
       - name: create release notes
         env:
