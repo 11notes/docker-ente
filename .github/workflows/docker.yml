@@ -1,0 +1,97 @@
+name: create and publish docker image
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  IMAGE_ARCH: "linux/amd64,linux/arm64"
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:   
+      - uses: actions/checkout@v4
+
+      - name: .json to env
+        uses: rgarcia-phi/json-to-variables@v1.1.0
+        with:
+          filename: '.json'
+
+      - name: github container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: docker hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: qemu
+        uses: docker/setup-qemu-action@v3.2.0
+
+      - name: buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: arch.dockerfile
+          push: true
+          sbom: true
+          provenance: mode=max
+          platforms: ${{ env.IMAGE_ARCH }}
+          cache-from: type=registry,ref=${{ env.json_image }}:buildcache
+          cache-to: type=registry,ref=${{ env.json_image }}:buildcache,mode=max,compression=zstd,force-compression=true
+          build-args: |
+            APP_IMAGE=${{ env.json_image }}
+            APP_NAME=${{ env.json_name }}
+            APP_VERSION=${{ env.json_version }}
+            APP_ROOT=${{ env.json_root }}
+          tags: |
+            ${{ env.json_image }}:${{ env.json_version }}
+            ${{ env.json_image }}:stable
+            ghcr.io/${{ env.json_image }}:${{ env.json_version }}
+            ghcr.io/${{ env.json_image }}:stable
+
+      - name: create release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create ${{ github.ref_name }} -F RELEASE.md
+
+      - name: update description
+        run: |
+          curl --request PATCH \
+            --url https://api.github.com/repos/${{ github.repository }} \
+            --header 'authorization: Bearer ${{ secrets.REPO_TOKEN }}' \
+            --header 'content-type: application/json' \
+            --data '{
+              "description":"${{ env.json_description }}",
+              "homepage":"",
+              "has_issues":true,
+              "has_projects":false,
+              "has_wiki":false
+            }' \
+            --fail
+
+      - name: push README.md to docker hub
+        uses: christian-korneck/update-container-description-action@v1
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKER_TOKEN }}
+        with:
+          destination_container_repo: ${{ env.json_image }}
+          provider: dockerhub
+          short_description: ${{ env.json_description }}
+          readme_file: 'README.md'

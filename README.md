@@ -1,15 +1,108 @@
 ![Banner](https://github.com/11notes/defaults/blob/main/static/img/banner.png?raw=true)
 
-# 🏔️ Alpine - ente
-[<img src="https://img.shields.io/badge/github-source-blue?logo=github">](https://github.com/11notes/docker-ente/tree/4.2.3) ![size](https://img.shields.io/docker/image-size/11notes/ente/4.2.3?color=0eb305) ![version](https://img.shields.io/docker/v/11notes/ente/4.2.3?color=eb7a09) ![pulls](https://img.shields.io/docker/pulls/11notes/ente?color=2b75d6)
+# 🏔️ ente on Alpine
+[<img src="https://img.shields.io/badge/github-source-blue?logo=github&color=040308">](https://github.com/11notes/docker-ente)![size](https://img.shields.io/docker/image-size/11notes/ente/4.2.7?color=0eb305)![version](https://img.shields.io/docker/v/11notes/ente/4.2.7?color=eb7a09)![pulls](https://img.shields.io/docker/pulls/11notes/ente?color=2b75d6)[<img src="https://img.shields.io/github/issues/11notes/docker-ente?color=7842f5">](https://github.com/11notes/docker-ente/issues)
 
-# SYNOPSIS
+**Run ente backend server on Alpine for your photos or authenticator app**
+
+# SYNOPSIS 📖
 **What can I do with this?** Run the ente server for your authenticator or photos app, easy and secure. You can use the compose to start your own server, the image will create all the needed keys and hashes or you can simply provide your own variables or config.yaml, whatever you prefer. For registration you can use the OTT option to avoid having to setup an SMTP server. Simply add your domain “@domain.com” to the ```${OTT_DOMAIN}``` and set the static PIN via ```${OTT_PIN}``` so every account can verify with that PIN.
 
-# VOLUMES
-* **/ente/etc** - Directory of config.yaml
+# COMPOSE ✂️
+```yaml
+name: "ente"
+services:
+  ente:
+    image: "11notes/ente:4.2.3"
+    container_name: "ente"
+    depends_on:
+      postgres:
+        condition: "service_healthy"
+        restart: true
+    environment:
+      TZ: "Europe/Zurich"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      OTT_DOMAIN: "@domain.com"
+      OTT_PIN: 123456
+    volumes:
+      - "etc:/ente/etc"
+    ports:
+      - "8080:8080/tcp"
+    networks:
+      frontend:
+      backend:
+    restart: "always"
 
-# CONFIG (EXAMPLE)
+  postgres:
+    image: "11notes/postgres:16"
+    container_name: "ente.postgres"
+    environment:
+      TZ: "Europe/Zurich"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - "postgres.etc:/postgres/etc"
+      - "postgres.var:/postgres/var"
+      - "postgres.backup:/postgres/backup"
+    networks:
+      backend:
+    restart: "always"
+
+  minio:
+    image: "minio/minio"
+    container_name: "ente.minio"
+    environment:
+      TZ: "Europe/Zurich"
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_ROOT_USER: "root"
+      MINIO_ROOT_PASSWORD: "minio1234"
+    command: 
+      - "server"
+      - "/data"
+      - "--console-address"
+      - ":9001"
+    volumes:
+      - "minio.etc:/root/.minio"
+      - "minio.var:/data"
+    networks:
+      backend:
+    restart: "always"
+
+  mc:
+    image: "minio/mc"
+    container_name: "ente.mc"
+    depends_on:
+      - "minio"
+    environment:
+      TZ: "Europe/Zurich"
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add ente http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
+      /usr/bin/mc mb --ignore-existing ente/default;
+      exit 0;"
+    volumes:
+      - "mc.etc:/root/.mc"
+    networks:
+      backend:
+volumes:
+  etc:
+  postgres.etc:
+  postgres.var:
+  postgres.backup:
+  minio.etc:
+  minio.var:
+  mc.etc:
+networks:
+  frontend:
+  backend:
+    internal: true
+```
+
+# DEFAULT CONFIG 📑
 /ente/.default/config.yaml
 ```yaml
 db:
@@ -106,114 +199,19 @@ jobs:
     prefix: ""
 ```
 
-# COMPOSE
-```yaml
-name: "ente"
-services:
-  ente:
-    image: "11notes/ente:4.2.3"
-    container_name: "ente"
-    depends_on:
-      postgres:
-        condition: "service_healthy"
-        restart: true
-    environment:
-      TZ: "Europe/Zurich"
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      OTT_DOMAIN: "@domain.com"
-      OTT_PIN: 123456
-    volumes:
-      - "etc:/ente/etc"
-    ports:
-      - "8080:8080/tcp"
-    networks:
-      frontend:
-      backend:
-    restart: "always"
-
-  postgres:
-    image: "11notes/postgres:16"
-    container_name: "ente.postgres"
-    environment:
-      TZ: "Europe/Zurich"
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - "postgres.etc:/postgres/etc"
-      - "postgres.var:/postgres/var"
-      - "postgres.backup:/postgres/backup"
-    networks:
-      backend:
-    restart: "always"
-
-  minio:
-    image: "minio/minio"
-    container_name: "ente.minio"
-    environment:
-      TZ: "Europe/Zurich"
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_ROOT_USER: "root"
-      MINIO_ROOT_PASSWORD: "minio1234"
-    command: 
-      - "server"
-      - "/data"
-      - "--console-address"
-      - ":9001"
-    volumes:
-      - "minio.etc:/root/.minio"
-      - "minio.var:/data"
-    networks:
-      backend:
-    restart: "always"
-
-  mc:
-    image: "minio/mc"
-    container_name: "ente.mc"
-    depends_on:
-      - "minio"
-    environment:
-      TZ: "Europe/Zurich"
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config host add ente http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
-      /usr/bin/mc mb --ignore-existing ente/default;
-      exit 0;"
-    volumes:
-      - "mc.etc:/root/.mc"
-    networks:
-      backend:
-volumes:
-  etc:
-  postgres.etc:
-  postgres.var:
-  postgres.backup:
-  minio.etc:
-  minio.var:
-  mc.etc:
-networks:
-  frontend:
-  backend:
-    internal: true
-```
-
-# DEFAULT SETTINGS
-# DEFAULT SETTINGS
+# DEFAULT SETTINGS 🗃️
 | Parameter | Value | Description |
 | --- | --- | --- |
-| `user` | docker | user docker |
-| `uid` | 1000 | user id 1000 |
-| `gid` | 1000 | group id 1000 |
+| `user` | docker | user name |
+| `uid` | 1000 | [user identifier](https://en.wikipedia.org/wiki/User_identifier) |
+| `gid` | 1000 | [group identifier](https://en.wikipedia.org/wiki/Group_identifier) |
 | `home` | /ente | home directory of user docker |
 
-# ENVIRONMENT
+# ENVIRONMENT 📝
 | Parameter | Value | Default |
 | --- | --- | --- |
 | `TZ` | [Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) | |
-| `DEBUG` | Show debug information | |
+| `DEBUG` | Show debug messages from image **not** app | |
 | `POSTGRES_HOST` | postgres host | postgres |
 | `POSTGRES_PORT` | postgres port | 5432 |
 | `POSTGRES_DATABASE` | postgres database | postgres |
@@ -232,19 +230,19 @@ networks:
 | `OTT_DOMAIN` | domain used for static OTT PIN for all accounts ending in this domain | |
 | `OTT_PIN` | static OTT PIN for all accounts registering | |
 
-# SOURCE
-* [11notes/ente:4.2.3](https://github.com/11notes/docker-ente/tree/4.2.3)
+# SOURCE 💾
+* [11notes/ente](https://github.com/11notes/docker-ente)
 
-# PARENT IMAGE
+# PARENT IMAGE 🏛️
 * [11notes/alpine:stable](https://hub.docker.com/r/11notes/alpine)
 
-# BUILT WITH
-* [ente](https://github.com/ente-io/ente/)
+# BUILT WITH 🧰
+* [mimalloc](https://github.com/microsoft/mimalloc)
 * [alpine](https://alpinelinux.org)
 
-# TIPS
-* Use a reverse proxy like Traefik, Nginx to terminate TLS with a valid certificate
+# TIPS 📌
+* Use a reverse proxy like Traefik, Nginx, HAproxy to terminate TLS with a valid certificate
 * Use Let’s Encrypt certificates to protect your SSL endpoints
 
-# ElevenNotes<sup>™️</sup>
-This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [RELEASE.md](https://github.com/11notes/docker-ente/blob/4.2.3/RELEASE.md) for breaking changes. You can find all my repositories on [github](https://github.com/11notes).
+# ElevenNotes™️
+This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-ente/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-ente/issues), thanks . You can find all my repositories on [github](https://github.com/11notes?tab=repositories).

@@ -1,7 +1,7 @@
 name: "ente"
 services:
   ente:
-    image: "11notes/ente:4.2.3"
+    image: "11notes/ente:4.2.7"
     container_name: "ente"
     depends_on:
       postgres:

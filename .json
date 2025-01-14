@@ -1,0 +1,8 @@
+{
+  "image":"11notes/ente",
+  "description":"Run ente backend server on Alpine for your photos or authenticator app",
+  "name":"ente",
+  "version":"4.2.7",
+  "parent":"11notes/alpine:stable",
+  "root":"/ente"
+}
