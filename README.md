@@ -13,7 +13,7 @@
 name: "ente"
 services:
   ente:
-    image: "11notes/ente:4.2.3"
+    image: "11notes/ente:4.2.7"
     container_name: "ente"
     depends_on:
       postgres:
@@ -237,7 +237,7 @@ jobs:
 * [11notes/alpine:stable](https://hub.docker.com/r/11notes/alpine)
 
 # BUILT WITH 🧰
-* [mimalloc](https://github.com/microsoft/mimalloc)
+* [ente](https://github.com/ente-io/ente/tree/main/server)
 * [alpine](https://alpinelinux.org)
 
 # TIPS 📌
