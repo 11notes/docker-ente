@@ -70,6 +70,7 @@ jobs:
               "description":"${{ env.json_description }}",
               "homepage":"",
               "has_issues":true,
+              "has_discussions":true,
               "has_projects":false,
               "has_wiki":false
             }' \
