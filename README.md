@@ -8,6 +8,8 @@
 # SYNOPSIS 📖
 **What can I do with this?** Run the ente server for your authenticator or photos app, easy and secure. You can use the compose to start your own server, the image will create all the needed keys and hashes or you can simply provide your own variables or config.yaml, whatever you prefer. For registration you can use the OTT option to avoid having to setup an SMTP server. Simply add your domain “@domain.com” to the ```${OTT_DOMAIN}``` and set the static PIN via ```${OTT_PIN}``` so every account can verify with that PIN.
 
+![Immich API key copy](https://github.com/11notes/docker-ente/blob/main/img/auth.png?raw=true)
+
 # COMPOSE ✂️
 ```yaml
 name: "ente"
