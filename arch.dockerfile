@@ -7,7 +7,7 @@
     git clone -b stable https://github.com/11notes/docker-util.git;
 
 # :: Build / ente
-  FROM golang:1.23.4-alpine3.21 AS ente
+  FROM golang:1.23-alpine AS ente
   ENV BUILD_DIR=/go/ente/server
 
   RUN set -ex; \
