@@ -69,6 +69,10 @@ jobs:
           image: ${{ env.json_image }}:grype
           severity-cutoff: high
 
+      - name: grype / report / print
+        if: success() || failure()
+        run: cat ${{ steps.scan.outputs.sarif }}
+
       - name: grype / delete tag
         if: success() || failure()
         run: |
@@ -82,9 +86,6 @@ jobs:
         uses: github/codeql-action/upload-sarif@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
-
-      - name: grype / report / print
-        run: cat ${{ steps.scan.outputs.sarif }}
 
       - name: build & push
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
