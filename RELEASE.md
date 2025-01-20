@@ -1,2 +1,2 @@
 ### 🪄 Features
-* add grype
+* add patch infos
