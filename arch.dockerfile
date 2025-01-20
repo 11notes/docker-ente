@@ -4,10 +4,14 @@
   RUN set -ex; \
     apk add --no-cache \
       git; \
-    git clone -b stable https://github.com/11notes/docker-util.git;
+    git clone https://github.com/11notes/docker-util.git; \
+    cp -R /docker-util/eleven* /usr/local/bin; \
+    chmod +x -R /usr/local/bin/eleven*; \
+    eleven init;
 
 # :: Build / ente
   FROM golang:1.23-alpine AS ente
+  COPY --from=util /usr/local/bin/ /usr/local/bin
   ENV BUILD_DIR=/go/ente/server
 
   RUN set -ex; \
@@ -19,6 +23,13 @@
       pkgconfig \
       libsodium-dev; \
     git clone https://github.com/ente-io/ente.git;
+
+  RUN set -ex; \
+    eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/crypto|v0.31.0|GHSA-v778-237x-gjrc"; \
+    eleven patchGoMod ${BUILD_DIR}/go.mod "google.golang.org/protobuf|v1.33.0|GHSA-8r3f-844c-mc37"; \
+    eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/net|v0.33.0|GHSA-w32m-9786-jp63"; \
+    cd ${BUILD_DIR}; \
+    go mod tidy;
 
   RUN set -ex; \
     cd ${BUILD_DIR}; \
@@ -53,7 +64,7 @@
     ENV ENTE_CONFIG_FILE="/ente/etc/config.yaml"
 
   # :: multi-stage
-    COPY --from=util /docker-util/src /usr/local/bin
+    COPY --from=util /usr/local/bin/ /usr/local/bin
     COPY --from=ente /opt/ente/ /opt/ente
 
 # :: Run

@@ -10,6 +10,13 @@
 
 ![Immich API key copy](https://github.com/11notes/docker-ente/blob/main/img/auth.png?raw=true)
 
+# APPLIED PATCHES 🩺
+| Type | ID | Object | Fix | Source
+| --- | --- | --- | --- | --- |
+| GHSA | GHSA-v778-237x-gjrc | golang.org/x/crypto | v0.31.0 | [GHSA](https://github.com/advisories/GHSA-v778-237x-gjrc) |
+| GHSA | GHSA-8r3f-844c-mc37 | google.golang.org/protobuf | v1.33.0 | [GHSA](https://github.com/advisories/GHSA-8r3f-844c-mc37) |
+| GHSA | GHSA-w32m-9786-jp63 | golang.org/x/net | v0.33.0 | [GHSA](https://github.com/advisories/GHSA-w32m-9786-jp63) |
+
 # COMPOSE ✂️
 ```yaml
 name: "ente"
