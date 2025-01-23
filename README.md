@@ -10,12 +10,14 @@
 
 ![Immich API key copy](https://github.com/11notes/docker-ente/blob/main/img/auth.png?raw=true)
 
-# APPLIED PATCHES 🩺
-| Type | ID | Object | Fix | Source
+# FIXED CVEs 🦟
+Unlike other popular image providers, this image contains individual CVE fixes to create a clean container images even if the developers of the original app simply forgot to do that. Why not add a PR with these fixes? Well, many developers ignore PR for CVE fixes and don’t run any code security scanners against their repos.
+
+| ID | Severity | Object | Fix | Source |
 | --- | --- | --- | --- | --- |
-| GHSA | GHSA-v778-237x-gjrc | golang.org/x/crypto | v0.31.0 | [GHSA](https://github.com/advisories/GHSA-v778-237x-gjrc) |
-| GHSA | GHSA-8r3f-844c-mc37 | google.golang.org/protobuf | v1.33.0 | [GHSA](https://github.com/advisories/GHSA-8r3f-844c-mc37) |
-| GHSA | GHSA-w32m-9786-jp63 | golang.org/x/net | v0.33.0 | [GHSA](https://github.com/advisories/GHSA-w32m-9786-jp63) |
+| CVE-2024-45337 | critical | golang.org/x/crypto | v0.31.0 | [Github](https://github.com/advisories/GHSA-v778-237x-gjrc) |
+| CVE-2024-45338 | high | golang.org/x/net | v0.33.0 | [Github](https://github.com/advisories/GHSA-w32m-9786-jp63) |
+| CVE-2024-24786 | medium | google.golang.org/protobuf | v1.33.0 | [Github](https://github.com/advisories/GHSA-8r3f-844c-mc37) |
 
 # COMPOSE ✂️
 ```yaml
@@ -252,6 +254,6 @@ jobs:
 # TIPS 📌
 * Use a reverse proxy like Traefik, Nginx, HAproxy to terminate TLS with a valid certificate
 * Use Let’s Encrypt certificates to protect your SSL endpoints
-
+  
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-ente/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-ente/issues), thanks . You can find all my repositories on [github](https://github.com/11notes?tab=repositories).
