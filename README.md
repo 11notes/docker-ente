@@ -1,17 +1,26 @@
 ![Banner](https://github.com/11notes/defaults/blob/main/static/img/banner.png?raw=true)
 
 # 🏔️ ente on Alpine
-[<img src="https://img.shields.io/badge/github-source-blue?logo=github&color=040308">](https://github.com/11notes/docker-ente)![size](https://img.shields.io/docker/image-size/11notes/ente/4.2.7?color=0eb305)![version](https://img.shields.io/docker/v/11notes/ente/4.2.7?color=eb7a09)![pulls](https://img.shields.io/docker/pulls/11notes/ente?color=2b75d6)[<img src="https://img.shields.io/github/issues/11notes/docker-ente?color=7842f5">](https://github.com/11notes/docker-ente/issues)
+[<img src="https://img.shields.io/badge/github-source-blue?logo=github&color=040308">](https://github.com/11notes/docker-ente)![size](https://img.shields.io/docker/image-size/11notes/ente/717dc09?color=0eb305)![version](https://img.shields.io/docker/v/11notes/ente/717dc09?color=eb7a09)![pulls](https://img.shields.io/docker/pulls/11notes/ente?color=2b75d6)[<img src="https://img.shields.io/github/issues/11notes/docker-ente?color=7842f5">](https://github.com/11notes/docker-ente/issues)
 
 **Run ente backend server on Alpine for your photos or authenticator app**
+
+# MAIN TAGS 🏷️
+These are the main tags for the image. There is also a tag for each commit and its shorthand sha256 value.
+
+* [717dc09](https://hub.docker.com/r/11notes/ente/tags?name=717dc09)
+* [latest](https://hub.docker.com/r/11notes/ente/tags?name=latest)
+* [717dc09-unraid](https://hub.docker.com/r/11notes/ente/tags?name=717dc09-unraid)
+* [latest-unraid](https://hub.docker.com/r/11notes/ente/tags?name=latest-unraid)
+
 
 # SYNOPSIS 📖
 **What can I do with this?** Run the ente server for your authenticator or photos app, easy and secure. You can use the compose to start your own server, the image will create all the needed keys and hashes or you can simply provide your own variables or config.yaml, whatever you prefer. For registration you can use the OTT option to avoid having to setup an SMTP server. Simply add your domain “@domain.com” to the ```${OTT_DOMAIN}``` and set the static PIN via ```${OTT_PIN}``` so every account can verify with that PIN.
 
-![Immich API key copy](https://github.com/11notes/docker-ente/blob/main/img/auth.png?raw=true)
+![Ente Auth](https://github.com/11notes/docker-ente/blob/master/img/auth.png?raw=true)
 
-# FIXED CVEs 🦟
-Unlike other popular image providers, this image contains individual CVE fixes to create a clean container images even if the developers of the original app simply forgot to do that. Why not add a PR with these fixes? Well, many developers ignore PR for CVE fixes and don’t run any code security scanners against their repos.
+# Patched CVEs 🦟
+Unlike other popular image providers, this image contains individual CVE fixes to create a clean container image even if the developers of the original app simply forgot to do that. Why not add a PR with these fixes? Well, many developers ignore PR for CVE fixes and don’t run any code security scanners against their repos. Some simply don’t care.
 
 | ID | Severity | Object | Fix | Source |
 | --- | --- | --- | --- | --- |
@@ -19,12 +28,14 @@ Unlike other popular image providers, this image contains individual CVE fixes t
 | CVE-2024-45338 | high | golang.org/x/net | v0.33.0 | [Github](https://github.com/advisories/GHSA-w32m-9786-jp63) |
 | CVE-2024-24786 | medium | google.golang.org/protobuf | v1.33.0 | [Github](https://github.com/advisories/GHSA-8r3f-844c-mc37) |
 
+
+
 # COMPOSE ✂️
 ```yaml
 name: "ente"
 services:
   ente:
-    image: "11notes/ente:4.2.7"
+    image: "11notes/ente:717dc09"
     container_name: "ente"
     depends_on:
       postgres:
@@ -114,7 +125,7 @@ networks:
 ```
 
 # DEFAULT CONFIG 📑
-/ente/.default/config.yaml
+/.default/config.yaml
 ```yaml
 db:
   host: "${POSTGRES_HOST}"
@@ -210,6 +221,10 @@ jobs:
     prefix: ""
 ```
 
+# UNRAID VERSION 🟠
+This image supports unraid by default. Simply add **-unraid** to any tag and the image will run as 99:100 instead of 1000:1000 causing no issues on unraid. Enjoy.
+
+
 # DEFAULT SETTINGS 🗃️
 | Parameter | Value | Description |
 | --- | --- | --- |
@@ -222,7 +237,7 @@ jobs:
 | Parameter | Value | Default |
 | --- | --- | --- |
 | `TZ` | [Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) | |
-| `DEBUG` | Show debug messages from image **not** app | |
+| `DEBUG` | Will activate debug option for container image and app (if available) | |
 | `POSTGRES_HOST` | postgres host | postgres |
 | `POSTGRES_PORT` | postgres port | 5432 |
 | `POSTGRES_DATABASE` | postgres database | postgres |
@@ -251,9 +266,10 @@ jobs:
 * [ente](https://github.com/ente-io/ente/tree/main/server)
 * [alpine](https://alpinelinux.org)
 
-# TIPS 📌
-* Use a reverse proxy like Traefik, Nginx, HAproxy to terminate TLS with a valid certificate
-* Use Let’s Encrypt certificates to protect your SSL endpoints
-  
+# GENERAL TIPS 📌
+* Use a reverse proxy like Traefik, Nginx, HAproxy to terminate TLS and to protect your endpoints
+* Use Let’s Encrypt DNS-01 challenge to obtain valid SSL certificates for your services
+
+    
 # ElevenNotes™️
-This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-ente/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-ente/issues), thanks . You can find all my repositories on [github](https://github.com/11notes?tab=repositories).
+This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-ente/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-ente/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-ente/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).

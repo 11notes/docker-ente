@@ -1,17 +1,10 @@
 # :: Util
-  FROM alpine AS util
-
-  RUN set -ex; \
-    apk add --no-cache \
-      git; \
-    git clone https://github.com/11notes/docker-util.git; \
-    cp -R /docker-util/eleven* /usr/local/bin; \
-    chmod +x -R /usr/local/bin/eleven*; \
-    eleven init;
+  FROM 11notes/util AS util
 
 # :: Build / ente
   FROM golang:1.23-alpine AS ente
   COPY --from=util /usr/local/bin/ /usr/local/bin
+  ARG APP_VERSION
   ENV BUILD_DIR=/go/ente/server
 
   RUN set -ex; \
@@ -22,7 +15,8 @@
       build-base \
       pkgconfig \
       libsodium-dev; \
-    git clone https://github.com/ente-io/ente.git;
+    git clone https://github.com/ente-io/ente.git; \
+    git reset --hard ${APP_VERSION};
 
   RUN set -ex; \
     eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/crypto|v0.31.0|GHSA-v778-237x-gjrc"; \
@@ -48,6 +42,8 @@
     ARG APP_NAME
     ARG APP_VERSION
     ARG APP_ROOT
+    ARG APP_UID
+    ARG APP_GID
 
   # :: environment
     ENV APP_IMAGE=${APP_IMAGE}
@@ -87,6 +83,10 @@
       chmod +x -R /usr/local/bin; \
       chown -R 1000:1000 \
         ${APP_ROOT};
+
+  # :: support unraid
+    RUN set -ex; \
+      eleven unraid
 
 # :: Volumes
   VOLUME ["${APP_ROOT}/etc"]
