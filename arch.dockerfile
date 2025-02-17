@@ -15,8 +15,10 @@
       build-base \
       pkgconfig \
       libsodium-dev; \
-    git clone https://github.com/ente-io/ente.git; \
-    git reset --hard ${APP_VERSION};
+    git clone --filter=tree:0 --no-checkout --depth 1 --sparse https://github.com/ente-io/ente.git; \
+    cd /go/ente; \
+    git reset --hard ${APP_VERSION}; \
+    git sparse-checkout add server;
 
   RUN set -ex; \
     eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/crypto|v0.31.0|GHSA-v778-237x-gjrc"; \
