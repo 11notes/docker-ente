@@ -21,9 +21,9 @@
     git sparse-checkout add server;
 
   RUN set -ex; \
-    eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/crypto|v0.31.0|GHSA-v778-237x-gjrc"; \
-    eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/net|v0.33.0|GHSA-w32m-9786-jp63"; \
-    eleven patchGoMod ${BUILD_DIR}/go.mod "google.golang.org/protobuf|v1.33.0|GHSA-8r3f-844c-mc37"; \
+    eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/crypto|v0.31.0|CVE-2024-45337 "; \
+    eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/net|v0.33.0|CVE-2024-45338"; \
+    eleven patchGoMod ${BUILD_DIR}/go.mod "google.golang.org/protobuf|v1.33.0|CVE-2024-24786"; \
     cd ${BUILD_DIR}; \
     go mod tidy;
 

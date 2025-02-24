@@ -1,10 +1,22 @@
 name: docker
+run-name: ${{ inputs.run-name }}
 
 on:
   workflow_dispatch:
     inputs:
+      run-name:
+        description: 'set run-name for workflow (multiple calls)'
+        type: string
+        required: false
+        default: 'docker'
+
       release:
         description: 'set WORKFLOW_GITHUB_RELEASE'
+        required: false
+        default: 'false'
+
+      readme:
+        description: 'set WORKFLOW_GITHUB_README'
         required: false
         default: 'false'
 
@@ -40,6 +52,9 @@ jobs:
     steps:   
       - name: init / checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
 
       - name: init / inputs to env
         if: github.event_name == 'workflow_dispatch'
@@ -48,6 +63,7 @@ jobs:
           ${{ toJSON(github.event.inputs) }}
           EOF
           for KEY in $(cat .inputs | jq --raw-output 'keys[]' | tr '\n' ' '); do echo "input_$(echo ${KEY} | tr '[:upper:]' '[:lower:]')=$(cat .inputs | jq --raw-output '.'${KEY}'')" >> $GITHUB_ENV; done
+          rm -rf .inputs
 
       - name: init / .json to env
         uses: rgarcia-phi/json-to-variables@9835d537368468c4e4de5254dc3efeadda183793
@@ -63,8 +79,10 @@ jobs:
 
           : # set defaults
           echo "IMAGE_ARCH=${json_arch:-linux/amd64,linux/arm64}" >> $GITHUB_ENV
-          echo "WORKFLOW_GRYPE_SEVERITY_CUTOFF=${json_grype_severity:-high}" >> $GITHUB_ENV;
           echo "WORKFLOW_GITHUB_RELEASE=${input_release:-true}" >> $GITHUB_ENV;
+          echo "WORKFLOW_GITHUB_README=${input_readme:-true}" >> $GITHUB_ENV;
+          echo "WORKFLOW_GRYPE_SCAN=${json_grype_scan:-true}" >> $GITHUB_ENV;
+          echo "WORKFLOW_GRYPE_SEVERITY_CUTOFF=${json_grype_severity:-high}" >> $GITHUB_ENV;
 
           : # create tags for semver, stable and other shenanigans
           LOCAL_SHA=$(git rev-parse --short HEAD)
@@ -77,7 +95,7 @@ jobs:
           LOCAL_TAGS="${LOCAL_IMAGE}:${LOCAL_SHA}"
           if [ ! -z ${input_semverprefix} ]; then LOCAL_SEMVER_PREFIX="${input_semverprefix}-"; fi
           if [ ! -z ${input_semversuffix} ]; then LOCAL_SEMVER_SUFFIX="-${input_semversuffix}"; fi
-          if [ ! -z ${json_semver_rc} ]; then LOCAL_SEMVER_RC="-${json_semver_rc}"; fi
+          if [ ! -z ${json_semver_rc} ]; then LOCAL_SEMVER_RC="${json_semver_rc}"; fi
           if [ ! -z ${LOCAL_SEMVER_MAJOR} ]; then LOCAL_TAGS="${LOCAL_TAGS},${LOCAL_IMAGE}:${LOCAL_SEMVER_PREFIX}${LOCAL_SEMVER_MAJOR}${LOCAL_SEMVER_SUFFIX}"; fi
           if [ ! -z ${LOCAL_SEMVER_MINOR} ]; then LOCAL_TAGS="${LOCAL_TAGS},${LOCAL_IMAGE}:${LOCAL_SEMVER_PREFIX}${LOCAL_SEMVER_MAJOR}.${LOCAL_SEMVER_MINOR}${LOCAL_SEMVER_SUFFIX}"; fi
           if [ ! -z ${LOCAL_SEMVER_PATCH} ]; then LOCAL_TAGS="${LOCAL_TAGS},${LOCAL_IMAGE}:${LOCAL_SEMVER_PREFIX}${LOCAL_SEMVER_MAJOR}.${LOCAL_SEMVER_MINOR}.${LOCAL_SEMVER_PATCH}${LOCAL_SEMVER_SUFFIX}"; fi
@@ -90,7 +108,7 @@ jobs:
           if [ ! -z ${input_uid} ]; then echo "IMAGE_UID=${input_uid}" >> $GITHUB_ENV; else echo "IMAGE_UID=${json_uid:-1000}" >> $GITHUB_ENV; fi
           if [ ! -z ${input_gid} ]; then echo "IMAGE_GID=${input_gid}" >> $GITHUB_ENV; else echo "IMAGE_GID=${json_gid:-1000}" >> $GITHUB_ENV; fi
 
-          : # set rc, prefix or suffix globally
+          : # set rc, prefix or suffix globally for semver and version
           echo "IMAGE_SEMVER_PREFIX=${LOCAL_SEMVER_PREFIX}" >> $GITHUB_ENV
           echo "IMAGE_SEMVER_SUFFIX=${LOCAL_SEMVER_SUFFIX}" >> $GITHUB_ENV
           echo "IMAGE_VERSION_RC=${LOCAL_SEMVER_RC}" >> $GITHUB_ENV
@@ -132,6 +150,7 @@ jobs:
             ${{ env.IMAGE }}:${{ env.IMAGE_SEMVER_PREFIX }}grype${{ env.IMAGE_SEMVER_SUFFIX }}
 
       - name: grype / scan
+        if: env.WORKFLOW_GRYPE_SCAN == 'true'
         id: grype-scan
         uses: anchore/scan-action@abae793926ec39a78ab18002bc7fc45bbbd94342
         with:
@@ -139,15 +158,6 @@ jobs:
           severity-cutoff: ${{ env.WORKFLOW_GRYPE_SEVERITY_CUTOFF }}
           by-cve: true
           output-format: 'sarif'
-          output-file: ${{ runner.temp }}/_github_home/grype.sarif
-
-      - name: grype / report / sarif to markdown
-        id: sarif-to-md
-        if: success() || failure()
-        continue-on-error: true
-        uses: 11notes/action-sarif-to-markdown@bc689850bd33a1037ea1d0a609ab4ea14b3c4396
-        with:
-          sarif_file: grype.sarif
 
       - name: grype / delete tag
         if: steps.grype-tag.outcome == 'success'
@@ -192,12 +202,72 @@ jobs:
           tags: |
             ${{ env.IMAGE_TAGS }}
 
-      - name: github / create release notes
-        if: env.WORKFLOW_GITHUB_RELEASE == 'true' && hashFiles('RELEASE.md') != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: github / release / log
+        id: git-log
         run: |
-          gh release create ${{ github.ref_name }} -F RELEASE.md
+          LOCAL_LAST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
+          echo "using last tag: ${LOCAL_LAST_TAG}"
+          LOCAL_COMMITS=$(git log ${LOCAL_LAST_TAG}..HEAD --oneline)
+
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "commits<<${EOF}" >> ${GITHUB_OUTPUT}
+          echo "${LOCAL_COMMITS}" >> ${GITHUB_OUTPUT}
+          echo "${EOF}" >> ${GITHUB_OUTPUT}
+
+      - name: github / release / markdown
+        if: env.WORKFLOW_GITHUB_RELEASE == 'true'
+        id: git-release
+        uses: 11notes/action-docker-release@v1
+        with:
+          git_log: ${{ steps.git-log.outputs.commits }}
+
+      - name: github / release / create
+        if: env.WORKFLOW_GITHUB_RELEASE == 'true' && steps.git-release.outcome == 'success'
+        uses: actions/create-release@4c11c9fe1dcd9636620a16455165783b20fc7ea0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: ${{ steps.git-release.outputs.release }}
+          draft: false
+          prerelease: false
+
+      - name: github / checkout master
+        continue-on-error: true
+        run: |         
+          git checkout master
+
+      - name: github / create README.md
+        continue-on-error: true
+        if: env.WORKFLOW_GITHUB_README == 'true' && steps.grype-tag.outcome == 'success'
+        id: github-readme
+        uses: 11notes/action-docker-readme@v1
+        with:
+          sarif_file: ${{ steps.grype-scan.outputs.sarif }}
+          #image_build_output: ${{ steps.grype-tag.outputs }}
+
+      - name: github / commit & push
+        continue-on-error: true
+        if: steps.github-readme.outcome == 'success'
+        run: |         
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "auto update README.md"
+          git push
+
+      - name: docker / push README.md to docker hub
+        if: hashFiles('README.md') != ''
+        uses: christian-korneck/update-container-description-action@d36005551adeaba9698d8d67a296bd16fa91f8e8
+        env:
+          DOCKER_USER: 11notes
+          DOCKER_PASS: ${{ secrets.DOCKER_TOKEN }}
+        with:
+          destination_container_repo: ${{ env.IMAGE }}
+          provider: dockerhub
+          short_description: ${{ env.json_readme_description }}
+          readme_file: 'README.md'
 
       - name: github / update description and set repo defaults
         run: |
@@ -214,15 +284,3 @@ jobs:
               "has_wiki":false
             }' \
             --fail
-
-      - name: docker / push README.md to docker hub
-        if: hashFiles('README.md') != ''
-        uses: christian-korneck/update-container-description-action@d36005551adeaba9698d8d67a296bd16fa91f8e8
-        env:
-          DOCKER_USER: 11notes
-          DOCKER_PASS: ${{ secrets.DOCKER_TOKEN }}
-        with:
-          destination_container_repo: ${{ env.IMAGE }}
-          provider: dockerhub
-          short_description: ${{ env.json_readme_description }}
-          readme_file: 'README.md'

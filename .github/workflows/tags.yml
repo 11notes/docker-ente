@@ -12,7 +12,7 @@ jobs:
         with:
           workflow: docker.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "release":"true" }'
+          inputs: '{ "release":"true", "readme":"true" }'
 
   docker-unraid:
     runs-on: ubuntu-latest
@@ -22,4 +22,4 @@ jobs:
         with:
           workflow: docker.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "release":"false", "uid":"99", "gid":"100", "semversuffix":"unraid" }'
+          inputs: '{ "release":"false", "readme":"false", "uid":"99", "gid":"100", "semversuffix":"unraid", "run-name":"docker-unraid" }'
