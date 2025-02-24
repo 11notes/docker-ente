@@ -15,7 +15,7 @@
       build-base \
       pkgconfig \
       libsodium-dev; \
-    git clone --filter=tree:0 --no-checkout --depth 1 --sparse https://github.com/ente-io/ente.git; \
+    git clone --filter=tree:0 --no-checkout --sparse https://github.com/ente-io/ente.git; \
     cd /go/ente; \
     git reset --hard ${APP_VERSION}; \
     git sparse-checkout add server;
