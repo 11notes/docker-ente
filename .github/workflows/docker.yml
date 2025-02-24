@@ -245,7 +245,7 @@ jobs:
         uses: 11notes/action-docker-readme@v1
         with:
           sarif_file: ${{ steps.grype-scan.outputs.sarif }}
-          #image_build_output: ${{ steps.grype-tag.outputs }}
+          image_build_output: ${{ steps.grype-tag.outputs }}
 
       - name: github / commit & push
         continue-on-error: true
