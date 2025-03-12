@@ -32,9 +32,9 @@
       fi
 
       # set secrets
-      sed -i 's@${KEY_ENCRYPTION}@'$(elevenCreateRandomString 31 | base64)'@' ${ENTE_CONFIG_FILE}
-      sed -i 's@${KEY_HASH}@'$(elevenCreateRandomString 31 | base64)'@' ${ENTE_CONFIG_FILE}
-      sed -i 's@${JWT_SECRET}@'$(elevenCreateRandomString 31 | base64)'@' ${ENTE_CONFIG_FILE}
+      sed -i 's@${KEY_ENCRYPTION}@'$(eleven randomString 31 | base64)'@' ${ENTE_CONFIG_FILE}
+      sed -i 's@${KEY_HASH}@'$(eleven randomString 31 | base64)'@' ${ENTE_CONFIG_FILE}
+      sed -i 's@${JWT_SECRET}@'$(eleven randomString 31 | base64)'@' ${ENTE_CONFIG_FILE}
     fi
 
     elevenDockerImageStart
