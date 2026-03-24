@@ -1,229 +1,161 @@
-![Banner](https://github.com/11notes/defaults/blob/main/static/img/banner.png?raw=true)
+![banner](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/banner/README.png)
 
-# 🏔️ ente on Alpine
-[<img src="https://img.shields.io/badge/github-source-blue?logo=github&color=040308">](https://github.com/11notes/docker-ente)![size](https://img.shields.io/docker/image-size/11notes/ente/717dc09?color=0eb305)![version](https://img.shields.io/docker/v/11notes/ente/717dc09?color=eb7a09)![pulls](https://img.shields.io/docker/pulls/11notes/ente?color=2b75d6)[<img src="https://img.shields.io/github/issues/11notes/docker-ente?color=7842f5">](https://github.com/11notes/docker-ente/issues)
+# ENTE
+![size](https://img.shields.io/badge/image_size-${{ image_size }}-green?color=%2338ad2d)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)![pulls](https://img.shields.io/docker/pulls/11notes/ente?color=2b75d6)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)[<img src="https://img.shields.io/github/issues/11notes/docker-ente?color=7842f5">](https://github.com/11notes/docker-ente/issues)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)![swiss_made](https://img.shields.io/badge/Swiss_Made-FFFFFF?labelColor=FF0000&logo=data:image/svg%2bxml;base64,PHN2ZyB2ZXJzaW9uPSIxIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDMyIDMyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0idHJhbnNwYXJlbnQiLz4KICA8cGF0aCBkPSJtMTMgNmg2djdoN3Y2aC03djdoLTZ2LTdoLTd2LTZoN3oiIGZpbGw9IiNmZmYiLz4KPC9zdmc+)
 
-**Run ente backend server on Alpine for your photos or authenticator app**
+run Ente rootless and distroless
 
-# MAIN TAGS 🏷️
-These are the main tags for the image. There is also a tag for each commit and its shorthand sha256 value.
+# INTRODUCTION 📢
 
-* [717dc09](https://hub.docker.com/r/11notes/ente/tags?name=717dc09)
-* [latest](https://hub.docker.com/r/11notes/ente/tags?name=latest)
-* [717dc09-unraid](https://hub.docker.com/r/11notes/ente/tags?name=717dc09-unraid)
-* [latest-unraid](https://hub.docker.com/r/11notes/ente/tags?name=latest-unraid)
+[Ente](https://github.com/ente-io/ente) (created by [ente-io](https://github.com/ente-io)) is a service that provides a fully open source, end-to-end encrypted platform for you to store your data in the cloud without needing to trust the service provider. On top of this platform, we have built three apps so far: Ente Photos (an alternative to Apple and Google Photos), Ente Locker (a safe space for your most important documents and credentials), and Ente Auth (a 2FA alternative to the deprecated Authy).
 
+![ENTEAUTH](https://github.com/11notes/docker-ente/blob/master/img/EnteAuth.png?raw=true)
 
 # SYNOPSIS 📖
-**What can I do with this?** Run the ente server for your authenticator or photos app, easy and secure. You can use the compose to start your own server, the image will create all the needed keys and hashes or you can simply provide your own variables or config.yaml, whatever you prefer. For registration you can use the OTT option to avoid having to setup an SMTP server. Simply add your domain “@domain.com” to the ```${OTT_DOMAIN}``` and set the static PIN via ```${OTT_PIN}``` so every account can verify with that PIN.
+**What can I do with this?** This image will run Ente [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) and [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md), for maximum security and performance. For all info's about the config file please read the [documentation]( https://github.com/ente-io/ente/blob/main/server/configurations/local.yaml). Works with Photos, Auth and Locker.
 
-![Ente Auth](https://github.com/11notes/docker-ente/blob/master/img/auth.png?raw=true)
+# UNIQUE VALUE PROPOSITION 💶
+**Why should I run this image and not the other image(s) that already exist?** Good question! Because ...
 
-# Patched CVEs 🦟
-Unlike other popular image providers, this image contains individual CVE fixes to create a clean container image even if the developers of the original app simply forgot to do that. Why not add a PR with these fixes? Well, many developers ignore PR for CVE fixes and don’t run any code security scanners against their repos. Some simply don’t care.
+> [!IMPORTANT]
+>* ... this image runs [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) as 1000:1000
+>* ... this image has no shell since it is [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)
+>* ... this image is auto updated to the latest version via CI/CD
+>* ... this image has a health check
+>* ... this image runs read-only
+>* ... this image is automatically scanned for CVEs before and after publishing
+>* ... this image is created via a secure and pinned CI/CD process
+>* ... this image is very small
+>* ... this image supports [inline configs](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)
 
-| ID | Severity | Object | Fix | Source |
-| --- | --- | --- | --- | --- |
-| CVE-2024-45337 | critical | golang.org/x/crypto | v0.31.0 | [Github](https://github.com/advisories/GHSA-v778-237x-gjrc) |
-| CVE-2024-45338 | high | golang.org/x/net | v0.33.0 | [Github](https://github.com/advisories/GHSA-w32m-9786-jp63) |
-| CVE-2024-24786 | medium | google.golang.org/protobuf | v1.33.0 | [Github](https://github.com/advisories/GHSA-8r3f-844c-mc37) |
+If you value security, simplicity and optimizations to the extreme, then this image might be for you.
 
+# COMPARISON 🏁
+Below you find a comparison between this image and the most used or original one.
 
+| **image** | **size on disk** | **init default as** | **[distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)** | supported architectures
+| ---: | ---: | :---: | :---: | :---: |
+| ente-io/server | 53MB | 0:0 | ❌ | amd64, arm64 |
+
+# DEFAULT CONFIG 📑
+```yaml
+file ./rootfs/prometheus/etc/default.yml not found!
+```
+
+# VOLUMES 📁
+* **/ente/etc** - Directory of your config
 
 # COMPOSE ✂️
 ```yaml
 name: "ente"
+
+x-lockdown: &lockdown
+  # prevents write access to the image itself
+  read_only: true
+  # prevents any process within the container to gain more privileges
+  security_opt:
+    - "no-new-privileges=true"
+
 services:
-  ente:
-    image: "11notes/ente:717dc09"
-    container_name: "ente"
+  server:
     depends_on:
       postgres:
         condition: "service_healthy"
         restart: true
+      minio:
+        condition: "service_healthy"
+        restart: true
+      mc:
+        condition: service_completed_successfully
+    image: "11notes/ente:2026.03.23"
+    <<: *lockdown
     environment:
       TZ: "Europe/Zurich"
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      OTT_DOMAIN: "@domain.com"
-      OTT_PIN: 123456
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
     volumes:
-      - "etc:/ente/etc"
+      - "server.etc:/ente/etc"
     ports:
-      - "8080:8080/tcp"
+      - "3000:8080/tcp"
     networks:
       frontend:
       backend:
     restart: "always"
 
   postgres:
-    image: "11notes/postgres:16"
-    container_name: "ente.postgres"
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-postgres
+    image: "11notes/postgres:18"
+    <<: *lockdown
     environment:
       TZ: "Europe/Zurich"
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    networks:
+      backend:
     volumes:
       - "postgres.etc:/postgres/etc"
       - "postgres.var:/postgres/var"
       - "postgres.backup:/postgres/backup"
-    networks:
-      backend:
+    tmpfs:
+      - "/postgres/run:uid=1000,gid=1000"
+      - "/postgres/log:uid=1000,gid=1000"
     restart: "always"
 
   minio:
-    image: "minio/minio"
-    container_name: "ente.minio"
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-minio
+    image: "11notes/minio:2025.10.15"
+    hostname: "minio"
+    <<: *lockdown
     environment:
       TZ: "Europe/Zurich"
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_ROOT_USER: "root"
-      MINIO_ROOT_PASSWORD: "minio1234"
-    command: 
-      - "server"
-      - "/data"
-      - "--console-address"
-      - ":9001"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
+    command: "/mnt"
+    ports:
+      - "3000:9001/tcp"
+      - "9000:9000/tcp"
     volumes:
-      - "minio.etc:/root/.minio"
-      - "minio.var:/data"
+      - "minio.var:/mnt"
     networks:
       backend:
     restart: "always"
 
   mc:
-    image: "minio/mc"
-    container_name: "ente.mc"
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-mc
     depends_on:
-      - "minio"
+      minio:
+        condition: "service_healthy"
+        restart: true
+    image: "11notes/mc:2025.08.13"
+    <<: *lockdown
     environment:
       TZ: "Europe/Zurich"
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config host add ente http://minio:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY};
-      /usr/bin/mc mb --ignore-existing ente/default;
-      exit 0;"
+      MC_MINIO_URL: "https://minio:9000"
+      MC_MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
+      MC_INSECURE: true
+    command:
+      - mb --ignore-existing minio/ente
     volumes:
-      - "mc.etc:/root/.mc"
+      - "mc.etc:/mc/etc"
     networks:
       backend:
+    restart: "no"
+
 volumes:
-  etc:
+  server.etc:
   postgres.etc:
   postgres.var:
   postgres.backup:
-  minio.etc:
   minio.var:
   mc.etc:
+
 networks:
   frontend:
   backend:
     internal: true
 ```
-
-# DEFAULT CONFIG 📑
-/.default/config.yaml
-```yaml
-db:
-  host: "${POSTGRES_HOST}"
-  port: "${POSTGRES_PORT}"
-  name: "${POSTGRES_DATABASE}"
-  user: "${POSTGRES_USER}"
-  password: "${POSTGRES_PASSWORD}"
-  sslmode: disable
-s3:
-  are_local_buckets: true
-  minio:
-    key: "${MINIO_ACCESS_KEY}"
-    secret: "${MINIO_SECRET_KEY}"
-    endpoint: "minio:3200"
-    bucket: "default"
-log-file: ""
-http:
-apps:
-  public-albums:
-  cast:
-  accounts:
-  family:
-key:
-  encryption: "${KEY_ENCRYPTION}"
-  hash: "${KEY_HASH}"
-jwt:
-  secret: "${JWT_SECRET}"
-smtp:
-  host: "${SMTP_HOST}"
-  port: "${SMTP_PORT}"
-  username: "${SMTP_USER}"
-  password: "${SMTP_PASSWORD}"
-  email: "${SMTP_EMAIL}"
-transmail:
-  key:
-apple:
-  shared-secret:
-stripe:
-  us:
-    key:
-    webhook-secret:
-  in:
-    key:
-    webhook-secret:
-  whitelisted-redirect-urls: []
-  path:
-    success: "?status=success&session_id={CHECKOUT_SESSION_ID}"
-    cancel: "?status=fail&reason=canceled"
-webauthn:
-  rpid: localhost
-  rporigins:
-    - "http://localhost:3001"
-discord:
-  bot:
-    cha-ching:
-      token:
-      channel:
-    mona-lisa:
-      token:
-      channel:
-zoho:
-  client-id:
-  client-secret:
-  refresh-token:
-  list-key:
-  topic-ids:
-listmonk:
-  server-url:
-  username:
-  password:
-  list-ids:
-internal:
-  silent: false
-  health-check-url:
-  admins: []
-  admin:
-  disable-registration: false
-  hardcoded-ott:
-    local-domain-suffix: "${OTT_DOMAIN}"
-    local-domain-value: ${OTT_PIN}
-replication:
-  enabled: false
-  worker-url:
-  worker-count: 6
-  tmp-storage: tmp/replication
-jobs:
-  cron:
-    skip: false
-  remove-unreported-objects:
-    worker-count: 1
-  clear-orphan-objects:
-    enabled: false
-    prefix: ""
-```
-
-# UNRAID VERSION 🟠
-This image supports unraid by default. Simply add **-unraid** to any tag and the image will run as 99:100 instead of 1000:1000 causing no issues on unraid. Enjoy.
-
+To find out how you can change the default UID/GID of this container image, consult the [RTFM](https://github.com/11notes/RTFM/blob/main/linux/container/image/11notes/how-to.changeUIDGID.md#change-uidgid-the-correct-way).
 
 # DEFAULT SETTINGS 🗃️
 | Parameter | Value | Description |
@@ -238,38 +170,52 @@ This image supports unraid by default. Simply add **-unraid** to any tag and the
 | --- | --- | --- |
 | `TZ` | [Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) | |
 | `DEBUG` | Will activate debug option for container image and app (if available) | |
-| `POSTGRES_HOST` | postgres host | postgres |
-| `POSTGRES_PORT` | postgres port | 5432 |
-| `POSTGRES_DATABASE` | postgres database | postgres |
-| `POSTGRES_USER` | postgres user | postgres |
-| `POSTGRES_PASSWORD` | postgres password | |
-| `MINIO_ACCESS_KEY` | minio access key | |
-| `MINIO_SECRET_KEY` | minio secret key | |
-| `KEY_ENCRYPTION` | ente encryption key | dynamically generated |
-| `KEY_HASH` | ente encryption hash | dynamically generated |
-| `JWT_SECRET` | ente jwt secret | dynamically generated |
-| `SMTP_HOST` | smtp server | |
-| `SMTP_PORT` | smtp server port | |
-| `SMTP_USER` | smtp server authentication user | |
-| `SMTP_PASSWORD` | smtp server authentication password | |
-| `SMTP_EMAIL` | smtp email address | |
-| `OTT_DOMAIN` | domain used for static OTT PIN for all accounts ending in this domain | |
-| `OTT_PIN` | static OTT PIN for all accounts registering | |
+| `ENTE_CONFIG` *(optional)* | Will overwrite the default config with the value of this variable if set ([inline config](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)) | |
+
+# MAIN TAGS 🏷️
+These are the main tags for the image. There is also a tag for each commit and its shorthand sha256 value.
+
+* [2026.03.23](https://hub.docker.com/r/11notes/ente/tags?name=2026.03.23)
+* [2026.03.23-unraid](https://hub.docker.com/r/11notes/ente/tags?name=2026.03.23-unraid)
+* [2026.03.23-nobody](https://hub.docker.com/r/11notes/ente/tags?name=2026.03.23-nobody)
+
+### There is no latest tag, what am I supposed to do about updates?
+It is my opinion that the ```:latest``` tag is a bad habbit and should not be used at all. Many developers introduce **breaking changes** in new releases. This would messed up everything for people who use ```:latest```. If you don’t want to change the tag to the latest [semver](https://semver.org/), simply use the short versions of [semver](https://semver.org/). Instead of using ```:2026.03.23``` you can use ```:2026``` or ```:2026.03```. Since on each new version these tags are updated to the latest version of the software, using them is identical to using ```:latest``` but at least fixed to a major or minor version. Which in theory should not introduce breaking changes.
+
+If you still insist on having the bleeding edge release of this app, simply use the ```:rolling``` tag, but be warned! You will get the latest version of the app instantly, regardless of breaking changes or security issues or what so ever. You do this at your own risk!
+
+# REGISTRIES ☁️
+```
+docker pull 11notes/ente:2026.03.23
+docker pull ghcr.io/11notes/ente:2026.03.23
+docker pull quay.io/11notes/ente:2026.03.23
+```
+
+# UNRAID VERSION 🟠
+This image supports unraid by default. Simply add **-unraid** to any tag and the image will run as 99:100 instead of 1000:1000.
+
+# NOBODY VERSION 👻
+This image supports nobody by default. Simply add **-nobody** to any tag and the image will run as 65534:65534 instead of 1000:1000.
 
 # SOURCE 💾
 * [11notes/ente](https://github.com/11notes/docker-ente)
 
 # PARENT IMAGE 🏛️
-* [11notes/alpine:stable](https://hub.docker.com/r/11notes/alpine)
+> [!IMPORTANT]
+>This image is not based on another image but uses [scratch](https://hub.docker.com/_/scratch) as the starting layer.
+>The image consists of the following distroless layers that were added:
+>* [11notes/distroless](https://github.com/11notes/docker-distroless/blob/master/arch.dockerfile) - contains users, timezones and Root CA certificates, nothing else
+>* [11notes/distroless:localhealth](https://github.com/11notes/docker-distroless/blob/master/localhealth.dockerfile) - app to execute HTTP requests only on 127.0.0.1
 
 # BUILT WITH 🧰
-* [ente](https://github.com/ente-io/ente/tree/main/server)
-* [alpine](https://alpinelinux.org)
+* [ente](https://github.com/ente-io/ente)
 
 # GENERAL TIPS 📌
-* Use a reverse proxy like Traefik, Nginx, HAproxy to terminate TLS and to protect your endpoints
-* Use Let’s Encrypt DNS-01 challenge to obtain valid SSL certificates for your services
+> [!TIP]
+>* Use a reverse proxy like Traefik, Nginx, HAproxy to terminate TLS and to protect your endpoints
+>* Use Let’s Encrypt DNS-01 challenge to obtain valid SSL certificates for your services
 
-    
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-ente/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-ente/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-ente/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
+
+*created 24.03.2026, 01:41:42 (CET)*
