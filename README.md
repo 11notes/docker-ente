@@ -20,7 +20,7 @@ run Ente rootless and distroless
 > [!IMPORTANT]
 >* ... this image runs [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) as 1000:1000
 >* ... this image has no shell since it is [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)
->* ... this image is auto updated to the latest version via CI/CD
+>* ... this image is auto updated to the latest version via CI/CD (semver based on commit date of /server path, check [cron.yml](https://github.com/11notes/docker-ente/blob/master/.github/workflows/cron.yml) for more info)
 >* ... this image has a health check
 >* ... this image runs read-only
 >* ... this image is automatically scanned for CVEs before and after publishing
@@ -40,7 +40,98 @@ Below you find a comparison between this image and the most used or original one
 
 # DEFAULT CONFIG 📑
 ```yaml
-file ./rootfs/prometheus/etc/default.yml not found!
+db:
+  host: "${POSTGRES_HOST}"
+  port: "${POSTGRES_PORT}"
+  name: "${POSTGRES_DATABASE}"
+  user: "${POSTGRES_USER}"
+  password: "${POSTGRES_PASSWORD}"
+  sslmode: disable
+s3:
+  are_local_buckets: true
+  minio:
+    key: "admin"
+    secret: "${MINIO_ROOT_PASSWORD}"
+    endpoint: "minio:9000"
+    bucket: "${MINIO_BUCKET}"
+log-file: ""
+http:
+apps:
+  public-albums:
+  cast:
+  accounts:
+  family:
+key:
+  encryption: "yvmG/RnzKrbCb9L3mgsmoxXr9H7i2Z4qlbT0mL3ln4w="
+  hash: "KXYiG07wC7GIgvCSdg+WmyWdXDAn6XKYJtp/wkEU7x573+byBRAYtpTP0wwvi8i/4l37uicX1dVTUzwH3sLZyw=="
+jwt:
+  secret: "i2DecQmfGreG6q1vBj5tCokhlN41gcfS2cjOs9Po-u8="
+smtp:
+  host:
+  port:
+  username:
+  password:
+  email:
+transmail:
+  key:
+apple:
+  shared-secret:
+stripe:
+  us:
+    key:
+    webhook-secret:
+  in:
+    key:
+    webhook-secret:
+  whitelisted-redirect-urls: []
+  path:
+    success: "?status=success&session_id={CHECKOUT_SESSION_ID}"
+    cancel: "?status=fail&reason=canceled"
+webauthn:
+  rpid: localhost
+  rporigins:
+    - "http://localhost:3001"
+discord:
+  bot:
+    cha-ching:
+      token:
+      channel:
+    mona-lisa:
+      token:
+      channel:
+zoho:
+  client-id:
+  client-secret:
+  refresh-token:
+  list-key:
+  topic-ids:
+listmonk:
+  server-url:
+  username:
+  password:
+  list-ids:
+internal:
+  silent: false
+  health-check-url:
+  admins: []
+  admin:
+  disable-registration: false
+  hardcoded-ott:
+    local-domain-suffix:
+    local-domain-value:
+replication:
+  enabled: false
+  worker-url:
+  worker-count: 6
+  tmp-storage: tmp/replication
+jobs:
+  cron:
+    skip: false
+  remove-unreported-objects:
+    worker-count: 1
+  clear-orphan-objects:
+    enabled: false
+    prefix: ""
 ```
 
 # VOLUMES 📁
@@ -219,4 +310,4 @@ This image supports nobody by default. Simply add **-nobody** to any tag and the
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-ente/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-ente/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-ente/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 24.03.2026, 01:45:43 (CET)*
+*created 24.03.2026, 01:55:29 (CET)*
