@@ -1,5 +1,6 @@
 {
   "image": "11notes/ente",
+  "platform":"amd64,arm64",
   "name": "ente",
   "root": "/ente",
   "build": {
