@@ -22,11 +22,11 @@ jobs:
 
       - name: get latest version and last tag
         run: |
+          export LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
           git clone --filter=tree:0 --no-checkout --sparse https://github.com/ente-io/ente.git
           cd ./ente
           export LATEST_BUILD=$(git log -1 --pretty=format:"%h" -- ./server | tail -n 1)
           export LATEST_VERSION=$(git show --no-patch --format=%ci ${LATEST_BUILD} | tail -n 1 | awk -F ' ' '{print $1}' | sed 's|-|.|g')
-          export LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
           echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"version":"'${LATEST_VERSION}'", "tag":"'${LATEST_TAG}'", "build":"'${LATEST_BUILD}'", "unraid":true, "nobody":true}' | base64 -w 0)" >> "${GITHUB_ENV}"
 
       - name: call org.update
