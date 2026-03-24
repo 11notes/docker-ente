@@ -1,35 +1,38 @@
 ${{ image: EnteAuth.png }}
 
-${{ content_synopsis }} Run the ente server for your authenticator or photos app, easy and secure. You can use the compose to start your own server, the image will create all the needed keys and hashes or you can simply provide your own variables or config.yaml, whatever you prefer. For registration you can use the OTT option to avoid having to setup an SMTP server. Simply add your domain “@domain.com” to the ```${OTT_DOMAIN}``` and set the static PIN via ```${OTT_PIN}``` so every account can verify with that PIN.
+${{ content_synopsis }} This image will run Ente [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) and [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md), for maximum security and performance. For all info's about the config file please read the [documentation]( https://github.com/ente-io/ente/blob/main/server/configurations/local.yaml). Works with Photos, Auth and Locker.
 
-${{ content_compose }}
+${{ content_uvp }} Good question! Because ...
+
+${{ github:> [!IMPORTANT] }}
+${{ github:> }}* ... this image runs [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) as 1000:1000
+${{ github:> }}* ... this image has no shell since it is [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)
+${{ github:> }}* ... this image is auto updated to the latest version via CI/CD
+${{ github:> }}* ... this image has a health check
+${{ github:> }}* ... this image runs read-only
+${{ github:> }}* ... this image is automatically scanned for CVEs before and after publishing
+${{ github:> }}* ... this image is created via a secure and pinned CI/CD process
+${{ github:> }}* ... this image is very small
+${{ github:> }}* ... this image supports [inline configs](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)
+
+If you value security, simplicity and optimizations to the extreme, then this image might be for you.
+
+${{ content_comparison }}
 
 ${{ title_config }}
-${{ json_root }}/.default/config.yaml
 ```yaml
-${{ include: /rootfs/ente/.default/config.yaml }}
+${{ include: ./rootfs/prometheus/etc/default.yml }}
 ```
+
+${{ title_volumes }}
+* **${{ json_root }}/etc** - Directory of your config
+
+${{ content_compose }}
 
 ${{ content_defaults }}
 
 ${{ content_environment }}
-| `POSTGRES_HOST` | postgres host | postgres |
-| `POSTGRES_PORT` | postgres port | 5432 |
-| `POSTGRES_DATABASE` | postgres database | postgres |
-| `POSTGRES_USER` | postgres user | postgres |
-| `POSTGRES_PASSWORD` | postgres password | |
-| `MINIO_ACCESS_KEY` | minio access key | |
-| `MINIO_SECRET_KEY` | minio secret key | |
-| `KEY_ENCRYPTION` | ente encryption key | dynamically generated |
-| `KEY_HASH` | ente encryption hash | dynamically generated |
-| `JWT_SECRET` | ente jwt secret | dynamically generated |
-| `SMTP_HOST` | smtp server | |
-| `SMTP_PORT` | smtp server port | |
-| `SMTP_USER` | smtp server authentication user | |
-| `SMTP_PASSWORD` | smtp server authentication password | |
-| `SMTP_EMAIL` | smtp email address | |
-| `OTT_DOMAIN` | domain used for static OTT PIN for all accounts ending in this domain | |
-| `OTT_PIN` | static OTT PIN for all accounts registering | |
+| `ENTE_CONFIG` *(optional)* | Will overwrite the default config with the value of this variable if set ([inline config](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)) | |
 
 ${{ content_source }}
 
