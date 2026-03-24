@@ -1,0 +1,109 @@
+name: "ente"
+
+x-lockdown: &lockdown
+  # prevents write access to the image itself
+  read_only: true
+  # prevents any process within the container to gain more privileges
+  security_opt:
+    - "no-new-privileges=true"
+
+services:
+  server:
+    depends_on:
+      postgres:
+        condition: "service_healthy"
+        restart: true
+      minio:
+        condition: "service_healthy"
+        restart: true
+      mc:
+        condition: service_completed_successfully
+    image: "11notes/ente:ae20f19"
+    <<: *lockdown
+    environment:
+      TZ: "Europe/Zurich"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
+      OTT_DOMAIN: "@domain.com"
+      OTT_PIN: 123456
+    volumes:
+      - "server.etc:/ente/etc"
+    ports:
+      - "3000:8080/tcp"
+    networks:
+      frontend:
+      backend:
+    restart: "always"
+
+  postgres:
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-postgres
+    image: "11notes/postgres:18"
+    <<: *lockdown
+    environment:
+      TZ: "Europe/Zurich"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    networks:
+      backend:
+    volumes:
+      - "postgres.etc:/postgres/etc"
+      - "postgres.var:/postgres/var"
+      - "postgres.backup:/postgres/backup"
+    tmpfs:
+      - "/postgres/run:uid=1000,gid=1000"
+      - "/postgres/log:uid=1000,gid=1000"
+    restart: "always"
+
+  minio:
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-minio
+    image: "11notes/minio:2025.10.15"
+    hostname: "minio"
+    <<: *lockdown
+    environment:
+      TZ: "Europe/Zurich"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
+    command: "/mnt"
+    ports:
+      - "3000:9001/tcp"
+      - "9000:9000/tcp"
+    volumes:
+      - "minio.var:/mnt"
+    networks:
+      backend:
+    restart: "always"
+
+  mc:
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-mc
+    depends_on:
+      minio:
+        condition: "service_healthy"
+        restart: true
+    image: "11notes/mc:2025.08.13"
+    <<: *lockdown
+    environment:
+      TZ: "Europe/Zurich"
+      MC_MINIO_URL: "https://minio:9000"
+      MC_MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
+      MC_INSECURE: true
+    command:
+      - mb --ignore-existing minio/ente
+    volumes:
+      - "mc.etc:/mc/etc"
+    networks:
+      backend:
+    restart: "no"
+
+volumes:
+  server.etc:
+  postgres.etc:
+  postgres.var:
+  postgres.backup:
+  minio.var:
+  mc.etc:
+
+networks:
+  frontend:
+  backend:
+    internal: true
