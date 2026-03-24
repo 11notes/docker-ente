@@ -18,14 +18,12 @@ services:
         restart: true
       mc:
         condition: service_completed_successfully
-    image: "11notes/ente:ae20f19"
+    image: "11notes/ente:2026.03.23"
     <<: *lockdown
     environment:
       TZ: "Europe/Zurich"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
-      OTT_DOMAIN: "@domain.com"
-      OTT_PIN: 123456
     volumes:
       - "server.etc:/ente/etc"
     ports:
