@@ -1,20 +1,29 @@
 {
-  "image":"11notes/ente",
-  "name":"ente",
-  "root":"/ente",
-  
-  "semver":{
-    "version":"038692a",
-    "latest":"038692a"
+  "image": "11notes/ente",
+  "name": "ente",
+  "root": "/ente",
+  "build": {
+    "args": {
+      "version_build": "ae20f19"
+    }
   },
-
-  "readme":{
-    "description":"Run ente backend server on Alpine for your photos or authenticator app",
-    "parent":{
-      "image":"11notes/alpine:stable"
+  "semver": {
+    "version": "2026.03.23"
+  },
+  "readme": {
+    "description": "run Ente rootless and distroless",
+    "introduction": "[Ente](https://github.com/ente-io/ente) (created by [ente-io](https://github.com/ente-io)) is a service that provides a fully open source, end-to-end encrypted platform for you to store your data in the cloud without needing to trust the service provider. On top of this platform, we have built three apps so far: Ente Photos (an alternative to Apple and Google Photos), Ente Locker (a safe space for your most important documents and credentials), and Ente Auth (a 2FA alternative to the deprecated Authy).",
+    "built": {
+      "ente": "https://github.com/ente-io/ente"
     },
-    "built":{
-      "ente/server":"https://github.com/ente-io/ente/tree/main/server"
+    "distroless": {
+      "layers": [
+        "11notes/distroless",
+        "11notes/distroless:localhealth"
+      ]
+    },
+    "comparison": {
+      "image": "ghcr.io/ente-io/server"
     }
   }
 }

@@ -8,10 +8,10 @@ db:
 s3:
   are_local_buckets: true
   minio:
-    key: "${MINIO_ACCESS_KEY}"
-    secret: "${MINIO_SECRET_KEY}"
-    endpoint: "minio:3200"
-    bucket: "default"
+    key: "admin"
+    secret: "${MINIO_ROOT_PASSWORD}"
+    endpoint: "minio:9000"
+    bucket: "${MINIO_BUCKET}"
 log-file: ""
 http:
 apps:
@@ -20,16 +20,16 @@ apps:
   accounts:
   family:
 key:
-  encryption: "${KEY_ENCRYPTION}"
-  hash: "${KEY_HASH}"
+  encryption: "yvmG/RnzKrbCb9L3mgsmoxXr9H7i2Z4qlbT0mL3ln4w="
+  hash: "KXYiG07wC7GIgvCSdg+WmyWdXDAn6XKYJtp/wkEU7x573+byBRAYtpTP0wwvi8i/4l37uicX1dVTUzwH3sLZyw=="
 jwt:
-  secret: "${JWT_SECRET}"
+  secret: "i2DecQmfGreG6q1vBj5tCokhlN41gcfS2cjOs9Po-u8="
 smtp:
-  host: "${SMTP_HOST}"
-  port: "${SMTP_PORT}"
-  username: "${SMTP_USER}"
-  password: "${SMTP_PASSWORD}"
-  email: "${SMTP_EMAIL}"
+  host:
+  port:
+  username:
+  password:
+  email:
 transmail:
   key:
 apple:
@@ -75,8 +75,8 @@ internal:
   admin:
   disable-registration: false
   hardcoded-ott:
-    local-domain-suffix: "${OTT_DOMAIN}"
-    local-domain-value: ${OTT_PIN}
+    local-domain-suffix:
+    local-domain-value:
 replication:
   enabled: false
   worker-url:

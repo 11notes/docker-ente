@@ -1,100 +1,120 @@
-# :: Util
+# ╔═════════════════════════════════════════════════════╗
+# ║                       SETUP                         ║
+# ╚═════════════════════════════════════════════════════╝
+# GLOBAL
+  ARG APP_UID= \
+      APP_GID= \
+      APP_GO_VERSION=0.0
+
+# :: FOREIGN IMAGES
+  FROM 11notes/distroless AS distroless
+  FROM 11notes/distroless:localhealth AS distroless-localhealth
   FROM 11notes/util AS util
 
-# :: Build / ente
-  FROM golang:1.23-alpine AS ente
-  COPY --from=util /usr/local/bin/ /usr/local/bin
-  ARG APP_VERSION
-  ENV BUILD_DIR=/go/ente/server
+# ╔═════════════════════════════════════════════════════╗
+# ║                       BUILD                         ║
+# ╚═════════════════════════════════════════════════════╝
+# :: ENTE (SERVER)
+  FROM 11notes/go:${APP_GO_VERSION} AS build
+  COPY --from=util / /
+  ARG APP_VERSION_BUILD \
+      BUILD_ROOT=/go/ente/server \
+      BUILD_BIN=/museum
 
   RUN set -ex; \
-    apk add --update --no-cache \
-      gcc \
-      musl-dev \
-      git \
-      build-base \
-      pkgconfig \
-      libsodium-dev; \
-    git clone --filter=tree:0 --no-checkout --sparse https://github.com/ente-io/ente.git; \
-    cd /go/ente; \
-    git reset --hard ${APP_VERSION}; \
-    git sparse-checkout add server;
+    eleven git slice ente-io/ente.git ${APP_VERSION_BUILD} server;
+
+  # fix no logs on health check
+  COPY ./build/go/ente /go/ente
 
   RUN set -ex; \
-    eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/crypto|v0.31.0|CVE-2024-45337"; \
-    eleven patchGoMod ${BUILD_DIR}/go.mod "golang.org/x/net|v0.33.0|CVE-2024-45338"; \
-    eleven patchGoMod ${BUILD_DIR}/go.mod "google.golang.org/protobuf|v1.33.0|CVE-2024-24786"; \
-    cd ${BUILD_DIR}; \
-    go mod tidy;
+    # fix configuration path
+    cd ${BUILD_ROOT}; \
+    sed -i 's|viper.SetConfigFile("configurations/" + environment + ".yaml")|viper.SetConfigFile("/ente/etc/default.yml")|' ./pkg/utils/config/config.go;
 
   RUN set -ex; \
-    cd ${BUILD_DIR}; \
-    mkdir -p /opt/ente; \
-    go build -o /opt/ente/museum cmd/museum/main.go; \
-    mv ${BUILD_DIR}/configurations /opt/ente; \
-    mv ${BUILD_DIR}/migrations /opt/ente; \
-    mv ${BUILD_DIR}/mail-templates /opt/ente;
+    cd ${BUILD_ROOT}; \
+    eleven go build ${BUILD_BIN} ./cmd/museum/main.go;
 
-# :: Header
-  FROM 11notes/alpine:stable
+  RUN set -ex; \
+    eleven distroless ${BUILD_BIN};
 
-  # :: arguments
-    ARG TARGETARCH
-    ARG APP_IMAGE
-    ARG APP_NAME
-    ARG APP_VERSION
-    ARG APP_ROOT
-    ARG APP_UID
-    ARG APP_GID
+  RUN set -ex; \
+    mkdir -p /distroless/opt/ente; \
+    mv /distroless/usr/local/bin/${BUILD_BIN} /distroless/opt/ente; \
+    mv ${BUILD_ROOT}/configurations /distroless/opt/ente; \
+    mv ${BUILD_ROOT}/migrations /distroless/opt/ente; \
+    mv ${BUILD_ROOT}/mail-templates /distroless/opt/ente; \
+    mv ${BUILD_ROOT}/web-templates /distroless/opt/ente; 
 
-  # :: environment
-    ENV APP_IMAGE=${APP_IMAGE}
-    ENV APP_NAME=${APP_NAME}
-    ENV APP_VERSION=${APP_VERSION}
-    ENV APP_ROOT=${APP_ROOT}
+# :: ENTRYPOINT
+  FROM 11notes/go:${APP_GO_VERSION} AS entrypoint
+  COPY ./build /
 
-    ENV POSTGRES_HOST="postgres"
-    ENV POSTGRES_PORT=5432
-    ENV POSTGRES_DATABASE="postgres"
-    ENV POSTGRES_USER="postgres"
-    
-    ENV GIN_MODE=release
-    ENV ENTE_CONFIG_FILE="/ente/etc/config.yaml"
+  RUN set -ex; \
+    cd /go/entrypoint; \
+    eleven go build entrypoint main.go; \
+    eleven distroless entrypoint;
+
+
+# :: FILE SYSTEM
+  FROM alpine AS file-system
+  COPY --from=util / /
+  ARG APP_ROOT
+
+  RUN set -ex; \
+    eleven mkdir /distroless${APP_ROOT}/{etc};
+
+
+# ╔═════════════════════════════════════════════════════╗
+# ║                       IMAGE                         ║
+# ╚═════════════════════════════════════════════════════╝
+# :: HEADER
+  FROM scratch
+
+  # :: default arguments
+    ARG TARGETPLATFORM \
+        TARGETOS \
+        TARGETARCH \
+        TARGETVARIANT \
+        APP_IMAGE \
+        APP_NAME \
+        APP_VERSION \
+        APP_ROOT \
+        APP_UID \
+        APP_GID \
+        APP_NO_CACHE
+
+  # :: default environment
+    ENV APP_IMAGE=${APP_IMAGE} \
+        APP_NAME=${APP_NAME} \
+        APP_VERSION=${APP_VERSION} \
+        APP_ROOT=${APP_ROOT}
+
+  # :: app specific environment
+    ENV GIN_MODE="release" \
+        MINIO_ACCESS_KEY="admin" \
+        MINIO_BUCKET="ente" \
+        POSTGRES_HOST="postgres" \
+        POSTGRES_PORT=5432 \
+        POSTGRES_DATABASE="postgres" \
+        POSTGRES_USER="postgres"
 
   # :: multi-stage
-    COPY --from=util /usr/local/bin/ /usr/local/bin
-    COPY --from=ente /opt/ente/ /opt/ente
+    COPY --from=distroless / /
+    COPY --from=distroless-localhealth / /
+    COPY --from=build /distroless/ /
+    COPY --from=entrypoint /distroless/ /
+    COPY --from=file-system --chown=${APP_UID}:${APP_GID} /distroless/ /
+    COPY --chown=${APP_UID}:${APP_GID} ./rootfs/ /
 
-# :: Run
-  USER root
-
-  # :: prepare image
-    RUN set -ex; \
-      mkdir -p ${APP_ROOT}/etc;
-
-  # :: install application
-    RUN set -ex; \
-      apk add --update --no-cache \
-        libsodium-dev; \
-      rm /opt/ente/configurations/local.yaml; \
-      ln -s /ente/etc/config.yaml /opt/ente/configurations/local.yaml;
-
-  # :: copy filesystem changes and set correct permissions
-    COPY ./rootfs /
-    RUN set -ex; \
-      chmod +x -R /usr/local/bin; \
-      chown -R 1000:1000 \
-        ${APP_ROOT};
-
-  # :: support unraid
-    RUN set -ex; \
-      eleven unraid
-
-# :: Volumes
+# :: PERSISTENT DATA
   VOLUME ["${APP_ROOT}/etc"]
 
-# :: Monitor
-  HEALTHCHECK --interval=5s --timeout=2s CMD curl -X GET -kILs --fail http://localhost:8080/ping || exit 1
+# :: MONITORING
+  HEALTHCHECK --interval=5s --timeout=2s --start-period=5s \
+    CMD ["/usr/local/bin/localhealth", "-I", "http://127.0.0.1:8080/ping"]
 
-# :: Start
-  USER docker
+# :: EXECUTE
+  USER ${APP_UID}:${APP_GID}
+  ENTRYPOINT ["/usr/local/bin/entrypoint"]
