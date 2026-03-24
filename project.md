@@ -21,7 +21,7 @@ ${{ content_comparison }}
 
 ${{ title_config }}
 ```yaml
-${{ include: ./rootfs/prometheus/etc/default.yml }}
+${{ include: ./rootfs/ente/etc/default.yml }}
 ```
 
 ${{ title_volumes }}
