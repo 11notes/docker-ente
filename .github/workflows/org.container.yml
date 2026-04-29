@@ -1,4 +1,4 @@
-name: docker
+name: org.container
 run-name: ${{ inputs.run-name }}
 
 env:
