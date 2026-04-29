@@ -7,11 +7,12 @@ ${{ content_uvp }} Good question! Because ...
 ${{ github:> [!IMPORTANT] }}
 ${{ github:> }}* ... this image runs [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) as 1000:1000
 ${{ github:> }}* ... this image has no shell since it is [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)
-${{ github:> }}* ... this image is auto updated to the latest version via CI/CD (semver based on commit date of /server path, check [cron.yml](https://github.com/11notes/docker-ente/blob/master/.github/workflows/cron.yml) for more info)
+${{ github:> }}* ... this image is auto updated to the latest version via CI/CD (semver based on commit date of /server path, check [workflow](https://github.com/11notes/docker-ente/blob/master/.github/workflows/update.yml) for more info)
 ${{ github:> }}* ... this image has a health check
 ${{ github:> }}* ... this image runs read-only
 ${{ github:> }}* ... this image is automatically scanned for CVEs before and after publishing
 ${{ github:> }}* ... this image is created via a secure and pinned CI/CD process
+${{ github:> }}* ... this image will replace unset secrets automatically with random generated ones
 ${{ github:> }}* ... this image is very small
 ${{ github:> }}* ... this image supports [inline configs](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)
 
