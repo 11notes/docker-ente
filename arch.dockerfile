@@ -2,8 +2,8 @@
 # ║                       SETUP                         ║
 # ╚═════════════════════════════════════════════════════╝
 # GLOBAL
-  ARG APP_UID= \
-      APP_GID= \
+  ARG APP_UID=1000 \
+      APP_GID=1000 \
       APP_GO_VERSION=0.0
 
 # :: FOREIGN IMAGES
@@ -26,7 +26,8 @@
 
   RUN set -ex; \
     cd ${BUILD_ROOT}; \
-    eleven go patch google.golang.org/grpc v1.79.3 CVE-2026-33186;
+    eleven go patch google.golang.org/grpc v1.79.3 CVE-2026-33186; \
+    eleven go patch google.golang.org/api v0.277.0 CVE-2026-33186;
 
   # fix no logs on health check
   COPY ./build/go/ente /go/ente
