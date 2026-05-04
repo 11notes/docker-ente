@@ -24,6 +24,10 @@
   RUN set -ex; \
     eleven git slice ente-io/ente.git ${APP_VERSION_BUILD} server;
 
+  RUN set -ex; \
+    cd ${BUILD_ROOT}; \
+    eleven go patch google.golang.org/grpc v1.79.3 CVE-2026-33186;
+
   # fix no logs on health check
   COPY ./build/go/ente /go/ente
 
