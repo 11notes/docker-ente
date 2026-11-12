@@ -9,7 +9,7 @@
     }
   },
   "semver": {
-    "version": "2026.03.23"
+    "version": "2026.3.23"
   },
   "readme": {
     "description": "run Ente rootless and distroless",
