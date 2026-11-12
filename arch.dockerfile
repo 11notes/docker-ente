@@ -10,13 +10,14 @@
   FROM 11notes/distroless AS distroless
   FROM 11notes/distroless:localhealth AS distroless-localhealth
   FROM 11notes/util AS util
+  FROM 11notes/util:bin AS util-bin
 
 # ╔═════════════════════════════════════════════════════╗
 # ║                       BUILD                         ║
 # ╚═════════════════════════════════════════════════════╝
 # :: ENTE (SERVER)
   FROM 11notes/go:${APP_GO_VERSION} AS build
-  COPY --from=util / /
+  COPY --from=util-bin / /
   ARG APP_VERSION_BUILD \
       BUILD_ROOT=/go/ente/server \
       BUILD_BIN=/museum
