@@ -37,7 +37,7 @@ jobs:
           cd ./ente
           LATEST_BUILD=$(git log -1 --pretty=format:"%h" -- ./server | tail -n 1)
           echo "LATEST_BUILD=${LATEST_BUILD}" >> "${GITHUB_ENV}"
-          echo "LATEST_VERSION=$(git show --no-patch --format=%ci ${LATEST_BUILD} | tail -n 1 | awk -F ' ' '{print $1}' | sed 's|-|.|g')" >> "${GITHUB_ENV}"
+          echo "LATEST_VERSION=$(git show --no-patch --format=%cs ${LATEST_BUILD} | awk -F- '{printf "%d.%d.%d\n", $1, $2, $3}')" >> "${GITHUB_ENV}"
 
       - name: check if updated is needed
         uses: 11notes/actions/update@v1 # v1
