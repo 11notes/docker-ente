@@ -26,5 +26,7 @@
     "comparison": {
       "image": "ghcr.io/ente-io/server"
     }
-  }
+  },
+  "unraid": true,
+  "nobody": true
 }
