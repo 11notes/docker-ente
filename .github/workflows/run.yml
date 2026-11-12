@@ -31,19 +31,25 @@ jobs:
           ref: 'master'
           fetch-depth: 0
 
-      - name: get latest version and last tag
+      - name: get latest version and build
         run: |
-          export LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
           git clone --filter=tree:0 --no-checkout --sparse https://github.com/ente-io/ente.git
           cd ./ente
-          export LATEST_BUILD=$(git log -1 --pretty=format:"%h" -- ./server | tail -n 1)
-          export LATEST_VERSION=$(git show --no-patch --format=%ci ${LATEST_BUILD} | tail -n 1 | awk -F ' ' '{print $1}' | sed 's|-|.|g')
-          echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"version":"'${LATEST_VERSION}'", "tag":"'${LATEST_TAG}'", "build":"'${LATEST_BUILD}'", "unraid":true, "nobody":true}' | base64 -w 0)" >> "${GITHUB_ENV}"
+          LATEST_BUILD=$(git log -1 --pretty=format:"%h" -- ./server | tail -n 1)
+          echo "LATEST_BUILD=${LATEST_BUILD}" >> "${GITHUB_ENV}"
+          echo "LATEST_VERSION=$(git show --no-patch --format=%ci ${LATEST_BUILD} | tail -n 1 | awk -F ' ' '{print $1}' | sed 's|-|.|g')" >> "${GITHUB_ENV}"
+
+      - name: check if updated is needed
+        uses: 11notes/actions/update@v1 # v1
+        with:
+          latest: ${{ env.LATEST_VERSION }}
+          etc: '{"build:"{"args":{"version_build":"${{ env.LATEST_BUILD }}"}}}'
 
       - name: call org.update
+        if: env.ACTIONS_UPDATE == 'true'
         uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 # v1.3.1
         with:
           wait-for-completion: false
           workflow: org.update.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "etc":"${{ env.WORKFLOW_UPDATE_BASE64JSON }}" }'
+          inputs: '{ "etc":"${{ env.ACTIONS_UPDATE_BASE64JSON }}" }'
