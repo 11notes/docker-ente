@@ -5,11 +5,11 @@
   "root": "/ente",
   "build": {
     "args": {
-      "version_build": "ae20f19"
+      "version_build": "aca1bae"
     }
   },
   "semver": {
-    "version": "2026.3.23"
+    "version": "2026.11.2"
   },
   "readme": {
     "description": "run Ente rootless and distroless",
