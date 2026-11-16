@@ -18,7 +18,7 @@ services:
         restart: true
       mc:
         condition: service_completed_successfully
-    image: "11notes/ente:2026.03.23"
+    image: "11notes/ente:2026.11.2"
     <<: *lockdown
     environment:
       TZ: "Europe/Zurich"
