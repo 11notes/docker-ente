@@ -54,7 +54,7 @@
   RUN set -ex; \
     mkdir -p /distroless/opt/ente; \
     mv /distroless/usr/local/bin/${BUILD_BIN} /distroless/opt/ente; \
-    mv ${BUILD_ROOT}/ configurations /distroless/opt/ente; \
+    mv ${BUILD_ROOT}/configurations /distroless/opt/ente; \
     mv ${BUILD_ROOT}/migrations /distroless/opt/ente; \
     mv ${BUILD_ROOT}/mail-templates /distroless/opt/ente; \
     mv ${BUILD_ROOT}/web-templates /distroless/opt/ente; 
