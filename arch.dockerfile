@@ -23,12 +23,13 @@
       BUILD_BIN=/museum
 
   RUN set -ex; \
-    eleven git slice ente-io/ente.git ${APP_VERSION_BUILD} server;
+    eleven git slice https://github.com/ente/ente.git ${APP_VERSION_BUILD} server;
 
   RUN set -ex; \
     cd ${BUILD_ROOT}; \
     eleven go patch google.golang.org/grpc v1.79.3 CVE-2026-33186; \
-    eleven go patch google.golang.org/api v0.277.0 CVE-2026-33186;
+    eleven go patch google.golang.org/api v0.277.0 CVE-2026-33186; \
+    go mod tidy;
 
   # fix no logs on health check
   COPY ./build/go/ente /go/ente
@@ -40,6 +41,11 @@
 
   RUN set -ex; \
     cd ${BUILD_ROOT}; \
+    find . -type f \( -name '*.go' -o -name 'go.mod' \) -exec sed -i 's#github.com/ente-io/#github.com/ente/#g' {} +; \
+    go mod tidy;
+
+  RUN set -ex; \
+    cd ${BUILD_ROOT}; \
     eleven go build ${BUILD_BIN} ./cmd/museum/main.go;
 
   RUN set -ex; \
@@ -48,7 +54,7 @@
   RUN set -ex; \
     mkdir -p /distroless/opt/ente; \
     mv /distroless/usr/local/bin/${BUILD_BIN} /distroless/opt/ente; \
-    mv ${BUILD_ROOT}/configurations /distroless/opt/ente; \
+    mv ${BUILD_ROOT}/ configurations /distroless/opt/ente; \
     mv ${BUILD_ROOT}/migrations /distroless/opt/ente; \
     mv ${BUILD_ROOT}/mail-templates /distroless/opt/ente; \
     mv ${BUILD_ROOT}/web-templates /distroless/opt/ente; 
