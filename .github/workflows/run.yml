@@ -33,7 +33,7 @@ jobs:
 
       - name: get latest version and build
         run: |
-          git clone --filter=tree:0 --no-checkout --sparse https://github.com/ente-io/ente.git
+          git clone --filter=tree:0 --no-checkout --sparse https://github.com/ente/ente.git
           cd ./ente
           LATEST_BUILD=$(git log -1 --pretty=format:"%h" -- ./server | tail -n 1)
           echo "LATEST_BUILD=${LATEST_BUILD}" >> "${GITHUB_ENV}"
